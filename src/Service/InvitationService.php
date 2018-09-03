@@ -1,19 +1,19 @@
 <?php
 /**
  * vonq-assignment-symfony
- * UserRepository.php
+ * InvitationService.php
  *
  * Copyright (c) LQDI Digital
  * www.lqdi.net - 2018
  *
  * @author Aryel Tupinambá <aryel.tupinamba@lqdi.net>
  *
- * Created at: 02/09/18, 18:29
+ * Created at: 02/09/18, 19:21
  */
 
-namespace App\Repositories;
+namespace App\Service;
 
 
-class UserRepository {
+class InvitationService {
 
 }

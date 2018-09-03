@@ -13,20 +13,27 @@
 
 namespace App\Tests\Unit;
 
-use App\Entities\Invite;
+use App\Entity\Invite;
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 
 
 class InviteTest extends TestCase {
 
 	public function testCreate() {
-		$invite = Invite::create(uniqid(), uniqid());
+		$userA = $this->createMock(User::class);
+		$userB = $this->createMock(User::class);
+
+		$invite = Invite::create($userA, $userB);
 
 		$this->assertEquals($invite->getStatus(), Invite::STATUS_PENDING);
 	}
 
 	public function testAccept() {
-		$invite = Invite::create(uniqid(), uniqid());
+		$userA = $this->createMock(User::class);
+		$userB = $this->createMock(User::class);
+
+		$invite = Invite::create($userA, $userB);
 
 		$invite->accept();
 
@@ -37,7 +44,10 @@ class InviteTest extends TestCase {
 	}
 
 	public function testReject() {
-		$invite = Invite::create(uniqid(), uniqid());
+		$userA = $this->createMock(User::class);
+		$userB = $this->createMock(User::class);
+
+		$invite = Invite::create($userA, $userB);
 
 		$invite->reject();
 
