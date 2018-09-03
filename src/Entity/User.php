@@ -53,6 +53,30 @@ class User {
 	protected $connectedUsers;
 
 	/**
+	 * @var Invite[]|ArrayCollection
+	 *
+	 * @ORM\OneToMany(
+	 *     targetEntity="App\Entity\Invite",
+	 *     mappedBy="invited",
+	 *     cascade={"persist"}
+	 * )
+	 */
+	protected $receivedInvites;
+
+	/**
+	 * @var Invite[]|ArrayCollection
+	 *
+	 * @ORM\OneToMany(
+	 *     targetEntity="App\Entity\Invite",
+	 *     mappedBy="inviter",
+	 *     cascade={"persist"}
+	 * )
+	 */
+	protected $sentInvites;
+
+	// --------------------------------------------------------------------------------
+
+	/**
 	 * User constructor.
 	 */
 	public function __construct() {
@@ -102,6 +126,56 @@ class User {
 
 		// Removes the relationship on the target, if exists.
 		$user->connectedUsers->removeElement($this);
+	}
+
+	// --------------------------------------------------------------------------------
+
+	/**
+	 * Gets invites received by this user
+	 * @return Invite[]|ArrayCollection
+	 */
+	public function getReceivedInvites() {
+		return $this->receivedInvites;
+	}
+
+	/**
+	 * Adds a connection invite sent to this user
+	 * @param Invite $invite
+	 * @return bool True if invite was added, false if not.
+	 */
+	public function addReceivedInvite(Invite $invite) {
+
+		// Checks if a pending invite from the same inviter already exists.
+		$withPendingInviteFromSameUser = function (Invite $otherInvite) use ($invite) {
+			return $otherInvite->inviter === $invite->inviter && $otherInvite->isPending();
+		};
+
+		if($this->receivedInvites->exists($withPendingInviteFromSameUser)) {
+			return false;
+		}
+
+		$this->receivedInvites->add($invite);
+
+		return true;
+
+	}
+
+	/**
+	 * Removes a connection invite received by this user.
+	 * @param Invite $invite
+	 */
+	public function removeReceivedConnection(Invite $invite) {
+		$this->receivedInvites->removeElement($invite);
+	}
+
+	// --------------------------------------------------------------------------------
+
+	/**
+	 * Gets invites sent by this user
+	 * @return Invite[]|ArrayCollection
+	 */
+	public function getSentInvites() {
+		return $this->sentInvites;
 	}
 
 }

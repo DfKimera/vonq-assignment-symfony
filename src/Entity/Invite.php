@@ -37,7 +37,7 @@ class Invite {
 	/**
 	 * @var User
 	 *
-	 * @ORM\ManyToOne(targetEntity="App\Entity\User")
+	 * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="sentInvites")
 	 * @ORM\JoinColumn(name="inviter_id", referencedColumnName="id", nullable=false)
 	 */
 	public $inviter;
@@ -45,7 +45,7 @@ class Invite {
 	/**
 	 * @var User
 	 *
-	 * @ORM\ManyToOne(targetEntity="App\Entity\User")
+	 * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="receivedInvites")
 	 * @ORM\JoinColumn(name="invited_id", referencedColumnName="id", nullable=false)
 	 */
 	public $invited;
