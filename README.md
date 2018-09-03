@@ -2,6 +2,19 @@
 
 Submission for **Aryel Tupinambá**
 
+## Requirements:
+- PHP 7.2
+- Composer
+- PHPUnit 7
+
+## Stack used
+- Symfony 4.1
+- Doctrine 2
+- SQLite for data persistence
+- Fractal for API responses
+- Several Symfony bundles 
+- VueJS for the web client
+
 ## To install:
 - Clone the repository
 - Install the dependencies with composer
