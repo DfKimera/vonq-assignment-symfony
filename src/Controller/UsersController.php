@@ -89,10 +89,13 @@ class UsersController extends ResourceController {
 	 */
 	public function inviteToConnect($id, Request $request) {
 
-		$loggedUserId = $request->headers->get('Authorization');
+		$loggedUser = $this->getLoggedUser($request);
+
+		if(!$loggedUser) {
+			return $this->json(['status' => 'failed', 'reason' => 'login_required'], 403);
+		}
 
 		$targetUser = $this->repository->find($id);
-		$loggedUser = $this->repository->find($loggedUserId);
 
 		try {
 			$invite = $this->invitationService->inviteToConnect($loggedUser, $targetUser);

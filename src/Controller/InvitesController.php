@@ -56,6 +56,11 @@ class InvitesController extends ResourceController {
 	public function index(Request $request) {
 
 		$loggedUser = $this->getLoggedUser($request);
+
+		if(!$loggedUser) {
+			return $this->json(['status' => 'failed', 'reason' => 'login_required'], 403);
+		}
+
 		$invites = $this->invites->findUserReceivedInvites($loggedUser);
 
 		return $this->resourceCollection(
@@ -73,6 +78,12 @@ class InvitesController extends ResourceController {
 	 */
 	public function changeStatus($id, Request $request) {
 
+		$loggedUser = $this->getLoggedUser($request);
+
+		if(!$loggedUser) {
+			return $this->json(['status' => 'failed', 'reason' => 'login_required'], 403);
+		}
+
 		$newStatus = $request->get('status');
 
 		if(!in_array($request->get('status'), ['accepted', 'rejected'])) {
@@ -80,7 +91,6 @@ class InvitesController extends ResourceController {
 		}
 
 		$invite = $this->invites->find($id);
-		$loggedUser = $this->getLoggedUser($request);
 
 		try {
 
