@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+		<title>VONQ Assignment - Web Client</title>
+
+		<link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"/>
+		<link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"/>
+
+		<script src="https://unpkg.com/vue"></script>
+		<script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
+		<script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	</head>
+
+	<body>
+
+		<div id="app">
+			<b-container>
+				<h1>VONQ Assignment for Back-end Developer</h1>
+				<h3><small>Submission for Aryel Tupinambá</small></h3>
+
+				<hr />
+
+				<b-form-group vertical
+		              :label-cols="4"
+		              description="Select a user to identify the API calls. Changing the user will display received connection invites, and will allow you to invite other users to connect."
+		              label="Logged in as..."
+				>
+					<b-form-select v-model="loggedUser" :options="usersSelect" @input="refreshReceivedInvites()"></b-form-select>
+				</b-form-group>
+
+				<hr />
+
+				<b-row>
+					<b-col md="6">
+						<h3>Users</h3>
+						<p>Click a user below to view their connections & send invites.</p>
+						<b-table striped hover :items="users" @row-clicked="onUserSelect($event)"></b-table>
+					</b-col>
+
+					<b-col md="6" v-if="user">
+						<b-card :title="'#' + user.id + ': ' + user.name">
+							<p>ID: {{user.id}}</p>
+							<p>E-mail: {{user.email}}</p>
+
+							<div v-if="loggedUser && user.id === loggedUser.id">
+								<span class="badge badge-primary">This is you!</span>
+							</div>
+						</b-card>
+
+						<br />
+
+						<b-card :title="user.name + '\'s connections'">
+							<p class="card-text" v-if="!user.connections.data || user.connections.data.length <= 0">This user has no connections.</p>
+							<ul>
+								<li v-for="connection in user.connections.data">
+									<strong>{{connection.name}} (ID: {{connection.id}})</strong>
+								</li>
+							</ul>
+						</b-card>
+
+						<br />
+
+						<b-card title="Connect with user"
+						        :footer="'You are logged as ' + loggedUser.name"
+						        v-if="loggedUser && loggedUser.id !== user.id">
+							<b-btn class="btn-block btn-lg btn-primary" @click="inviteToConnect(user)">Invite {{user.name}} to connect</b-btn>
+						</b-card>
+
+						<b-card title="Connect with user"
+						        v-if="!loggedUser">
+							You must login to invite this user to connect.
+						</b-card>
+
+					</b-col>
+				</b-row>
+
+				<hr />
+
+				<b-row v-if="loggedUser">
+					<h2>Received invites for {{loggedUser.name}}</h2>
+
+					<table class="table">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Date</th>
+								<th>Inviter</th>
+								<th>Options</th>
+							</tr>
+							</thead>
+						<tbody>
+							<tr v-for="invite in receivedInvites">
+								<td>{{invite.id}}</td>
+								<td>{{invite.created_at.date}}</td>
+								<td>{{invite.inviter.name}}</td>
+								<td>
+									<b-btn v-if="invite.status === 'pending'" @click="acceptInvite(invite)" class="btn-sm btn-success">Accept</b-btn>
+									<b-btn v-if="invite.status === 'pending'" @click="rejectInvite(invite)" class="btn-sm btn-danger">Reject</b-btn>
+									<span v-if="invite.status === 'accepted'" class="badge badge-success">Accepted!</span>
+									<span v-if="invite.status === 'rejected'" class="badge badge-danger">Rejected!</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</b-row>
+
+			</b-container>
+		</div>
+
+		<!-- Start running your app -->
+		<script>
+			window.app = new Vue({
+				el: "#app",
+
+				data: {
+					users: [],
+					receivedInvites: [],
+					user: null,
+					loggedUser: null,
+				},
+
+				mounted: function() {
+					this.refreshUsers();
+					this.refreshReceivedInvites();
+				},
+
+				computed: {
+					usersSelect: function() {
+						let items = this.users.map((user) => {
+							return {value: user, text: `${user.name} (id: ${user.id})`}
+						});
+
+						items.unshift({value: null, text: '--- Not logged in ---'});
+
+						return items;
+					},
+				},
+
+				methods: {
+
+					getAuthConfig: function() {
+						if(!this.loggedUser) return {};
+						return {headers: {'Authorization': this.loggedUser.id, 'Content-type': 'application/json'}}
+					},
+
+					refreshUsers: async function() {
+						this.users = (await axios.get('/users')).data.data;
+					},
+
+					refreshCurrentUser: async function() {
+						if(!this.user) return;
+						this.onUserSelect(this.user);
+					},
+
+					refreshReceivedInvites: async function() {
+						this.receivedInvites = (await axios.get('/invites', this.getAuthConfig())).data.data;
+					},
+
+					onUserSelect: async function(item) {
+						this.user = (await axios.get('/users/' + item.id + '?with=invites,connections')).data.data;
+					},
+
+					inviteToConnect: async function(user) {
+						let response = await axios.post('/users/' + user.id + '/invites', {}, this.getAuthConfig());
+
+						alert('Your invite has been sent: ' + response.data.status);
+
+						this.refreshReceivedInvites();
+					},
+
+					acceptInvite: async function (invite) {
+						await axios.put('/invites/' + invite.id, {status: 'accepted'}, this.getAuthConfig());
+						this.refreshReceivedInvites();
+						this.refreshCurrentUser();
+					},
+
+					rejectInvite: async function (invite) {
+						await axios.put('/invites/' + invite.id, {status: 'accepted'}, this.getAuthConfig());
+						this.refreshReceivedInvites();
+					}
+				}
+			})
+		</script>
+
+	</body>
+</html>

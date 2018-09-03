@@ -191,6 +191,9 @@
             "ref": "fb7e19da7f013d0d422fa9bce16f5c510e27609b"
         }
     },
+    "symfony-bundles/json-request-bundle": {
+        "version": "v2.0.0"
+    },
     "symfony/browser-kit": {
         "version": "v4.1.4"
     },

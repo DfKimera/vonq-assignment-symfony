@@ -8,6 +8,7 @@
         "doctrine/doctrine-fixtures-bundle": "^3.0",
         "league/fractal": "^0.17.0",
         "sensio/framework-extra-bundle": "^5.2",
+        "symfony-bundles/json-request-bundle": "^2.0",
         "symfony/console": "*",
         "symfony/flex": "^1.1",
         "symfony/framework-bundle": "*",
