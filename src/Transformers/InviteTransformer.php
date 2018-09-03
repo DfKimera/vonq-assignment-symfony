@@ -23,7 +23,8 @@ class InviteTransformer extends TransformerAbstract {
 		return [
 			'id' => $invite->id,
 			'created_at' => $invite->createdAt,
-			'inviter' => $invite->inviter,
+			'status' => $invite->getStatus(),
+			'inviter' => $invite->getInviter(),
 		];
 	}
 

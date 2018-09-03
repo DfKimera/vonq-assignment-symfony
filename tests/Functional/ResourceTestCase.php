@@ -34,42 +34,40 @@ class ResourceTestCase extends WebTestCase {
 	/**
 	 * @var Application
 	 */
-	protected static $application;
+	protected $application;
 
 	public function setUp() {
 		parent::setUp();
 
 		$this->client = static::createClient();
 
-		$this->em = static::$kernel
+		$this->em = $this->client
 			->getContainer()
 			->get('doctrine')
 			->getManager();
 
-		self::runCommand('doctrine:database:drop --force');
-		self::runCommand('doctrine:database:create');
-		self::runCommand('doctrine:schema:create');
-		self::runCommand('doctrine:fixtures:load --append --no-interaction');
+		$this->runCommand('doctrine:database:drop --force');
+		$this->runCommand('doctrine:database:create');
+		$this->runCommand('doctrine:schema:create');
+		$this->runCommand('doctrine:fixtures:load --append --no-interaction');
 	}
 
-	protected static function runCommand($command) {
+	protected function runCommand($command) {
 		$command = sprintf('%s --quiet', $command);
-		return self::getApplication()->run(new StringInput($command));
+		return $this->getApplication()->run(new StringInput($command));
 	}
 
-	protected static function getApplication() {
-		if (null === self::$application) {
-			$client = static::createClient();
-
-			self::$application = new Application($client->getKernel());
-			self::$application->setAutoExit(false);
+	protected  function getApplication() {
+		if ($this->application === null) {
+			$this->application = new Application($this->client->getKernel());
+			$this->application->setAutoExit(false);
 		}
 
-		return self::$application;
+		return $this->application;
 	}
 
 	protected function tearDown() {
-		self::runCommand('doctrine:database:drop --force');
+		$this->runCommand('doctrine:database:drop --force');
 
 		parent::tearDown();
 

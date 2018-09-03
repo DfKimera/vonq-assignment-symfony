@@ -81,6 +81,8 @@ class User {
 	 */
 	public function __construct() {
 		$this->connectedUsers = new ArrayCollection();
+		$this->receivedInvites = new ArrayCollection();
+		$this->sentInvites = new ArrayCollection();
 	}
 
 	/**
@@ -147,7 +149,7 @@ class User {
 
 		// Checks if a pending invite from the same inviter already exists.
 		$withPendingInviteFromSameUser = function (Invite $otherInvite) use ($invite) {
-			return $otherInvite->inviter === $invite->inviter && $otherInvite->isPending();
+			return $otherInvite->getInviter() === $invite->getInviter() && $otherInvite->isPending();
 		};
 
 		if($this->receivedInvites->exists($withPendingInviteFromSameUser)) {
@@ -176,6 +178,12 @@ class User {
 	 */
 	public function getSentInvites() {
 		return $this->sentInvites;
+	}
+
+	// --------------------------------------------------------------------------------
+
+	public function __toString() {
+		return "User@<{$this->id}>";
 	}
 
 }

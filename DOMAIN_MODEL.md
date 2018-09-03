@@ -8,9 +8,9 @@
 	- can be authenticated
 	- has many connected `Users`
 	- can be listed & filtered
-- `ConnectionInvite` **entity**
+- `Invite` **entity**
 	- represents a request to connect, from one `User` to the other
-	- once accepted, becomes a connected `User`
+	- once accepted, becomes a connected `User` (on the many-to-many table)
 
 
 ## Domain language definitions
@@ -25,12 +25,9 @@
 
 ## Services
 
-- `ConnectionInviteService`
+- `InvitationService`
 	- handles new invites
 	- handles accept/reject actions
-- `UserRegistrationService`
-	- handles new users
-		
 		
 ## API
 
@@ -38,21 +35,16 @@
 	- lists users
 - `GET /users/{user_id}`
 	- displays user
-- `POST /users`
-	- registers a new user
-- `POST /authenticate`
-	- authenticates an existing user
-	- returns a JWT token
 - `POST /users/{user_id}/invites`  *authenticated*
 	- sends an connection invite to the target user
-	- user in JWT claim becomes the `inviter`
 	- validates if `user_id` exists
-	- validates if invite exists for `user_id` + `inviter_id`
+	- validates if invite exists for `inviter_id` + `inviter_id`
 	- if a reverse invite exists, accept existing invite instead
-- `PUT /users/{user_id}/invites/{inviter_id}` *authenticated*
+- `GET /invites` *authenticated*
+	- lists pending invites of logged user
+- `PUT /invites/{invite_id}` *authenticated*
 	- changes the status for the invite
 	- `{status: 'accepted'}` accepts the invite 
 	- `{status: 'rejected'}` rejects the invite 
-	- validates if token allowed for `user_id`
-	- validates if invite exists for `user_id` + `inviter_id`
+	- validates if logged user allowed to decide for `invite_id`
 	- validates if invite not already accepted

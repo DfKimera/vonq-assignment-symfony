@@ -14,6 +14,8 @@
 namespace App\Tests\Functional;
 
 
+use App\Entity\User;
+
 class UsersAPITest extends ResourceTestCase {
 
 	public function testUsersIndex() {
@@ -51,6 +53,32 @@ class UsersAPITest extends ResourceTestCase {
 		$this->assertObjectHasAttribute('email', $payload->data);
 		$this->assertObjectHasAttribute('invites', $payload->data);
 		$this->assertObjectHasAttribute('connections', $payload->data);
+
+	}
+
+	public function testUserInviteToConnect() {
+
+		$this->client->request('POST', '/users/1/invites', [], [], ['HTTP_Authorization' => 2]);
+
+		$this->assertEquals(201, $this->client->getResponse()->getStatusCode());
+
+		$contents = $this->client->getResponse()->getContent();
+
+		$this->assertJson($contents);
+		$payload = json_decode($contents);
+
+		$this->assertNotNull($payload);
+		$this->assertEquals($payload->status, 'ok');
+		$this->assertNotNull($payload->invite_id);
+
+		$invitedUser = $this->em->getRepository(User::class)->find(1);
+		$loggedUser = $this->em->getRepository(User::class)->find(2);
+
+		$this->assertCount(1, $invitedUser->getReceivedInvites());
+		$this->assertCount(0, $invitedUser->getSentInvites());
+
+		$this->assertCount(1, $loggedUser->getSentInvites());
+		$this->assertCount(0, $loggedUser->getReceivedInvites());
 
 	}
 

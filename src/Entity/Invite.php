@@ -37,10 +37,10 @@ class Invite {
 	/**
 	 * @var User
 	 *
-	 * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="sentInvites")
+	 * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="sentInvites", fetch="EAGER")
 	 * @ORM\JoinColumn(name="inviter_id", referencedColumnName="id", nullable=false)
 	 */
-	public $inviter;
+	private $inviter;
 
 	/**
 	 * @var User
@@ -48,7 +48,7 @@ class Invite {
 	 * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="receivedInvites")
 	 * @ORM\JoinColumn(name="invited_id", referencedColumnName="id", nullable=false)
 	 */
-	public $invited;
+	private $invited;
 
 	/**
 	 * @var string
@@ -72,11 +72,36 @@ class Invite {
 	}
 
 	/**
+	 * Gets the user that sent the invite.
+	 * @return User
+	 */
+	public function getInviter() {
+		return $this->inviter;
+	}
+
+	/**
+	 * Gets the user that received the invite.
+	 * @return User
+	 */
+	public function getInvited() {
+		return $this->invited;
+	}
+
+	/**
 	 * Checks if the invite is still pending.
 	 * @return bool
 	 */
 	public function isPending() {
 		return $this->status === self::STATUS_PENDING;
+	}
+
+	/**
+	 * Checks if the given user can decide to accept/reject this invite.
+	 * @param User $user
+	 * @return bool
+	 */
+	public function canBeDecidedBy(User $user) {
+		return $this->invited->id === $user->id;
 	}
 
 	/**
@@ -115,6 +140,10 @@ class Invite {
 		$invite->createdAt = new \DateTime('now');
 
 		return $invite;
+	}
+
+	public function __toString() {
+		return "Invite@<{$this->id}, {$this->invited_id}, {$this->inviter_id}>";
 	}
 
 }
