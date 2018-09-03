@@ -74,6 +74,11 @@ class InvitesAPITest extends ResourceTestCase {
 		$this->assertEquals('ok', $payload->status);
 		$this->assertEquals('accepted', $payload->invite_status);
 
+		$inviter = $this->em->getRepository(User::class)->find(1);
+		$invited = $this->em->getRepository(User::class)->find(2);
+
+		$this->assertCount(1, $invited->getConnections());
+		$this->assertCount(1, $inviter->getConnections());
 
 	}
 
@@ -99,7 +104,16 @@ class InvitesAPITest extends ResourceTestCase {
 		$this->assertEquals('ok', $payload->status);
 		$this->assertEquals('rejected', $payload->invite_status);
 
+		$inviter = $this->em->getRepository(User::class)->find(1);
+		$invited = $this->em->getRepository(User::class)->find(2);
+
+		$this->assertCount(0, $inviter->getConnections());
+		$this->assertCount(0, $invited->getConnections());
 
 	}
+
+	// TODO: test lacking authorization
+	// TODO: test trying to re-decide
+	// TODO: test invalid IDs, etc
 
 }

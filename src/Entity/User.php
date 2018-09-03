@@ -90,6 +90,7 @@ class User {
 	 * @return User[]|ArrayCollection
 	 */
 	public function getConnections() {
+		// TODO: replace duplicate inverse connections with repository joined fetch
 		return $this->connectedUsers;
 	}
 
@@ -114,7 +115,11 @@ class User {
 			return;
 		}
 
+		// Adds local connection
 		$this->connectedUsers->add($user);
+
+		// Adds inverse connection
+		$user->connectedUsers->add($this);
 
 	}
 

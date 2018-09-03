@@ -82,4 +82,7 @@ class UsersAPITest extends ResourceTestCase {
 
 	}
 
+	// TODO: test filtering & sorting
+	// TODO: test invalid invitation parameters
+
 }
